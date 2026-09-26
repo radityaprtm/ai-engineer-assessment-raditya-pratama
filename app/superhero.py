@@ -1,9 +1,10 @@
-import os
 import httpx
+
+from app.config import SUPERHERO_API_TOKEN
 
 
 def search_superhero(name: str):
-    token = os.getenv("SUPERHERO_API_TOKEN")
+    token = SUPERHERO_API_TOKEN
 
     if not token:
         raise RuntimeError("SUPERHERO_API_TOKEN is not set.")
