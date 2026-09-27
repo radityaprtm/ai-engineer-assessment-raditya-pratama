@@ -15,8 +15,19 @@ git clone https://github.com/radityaprtm/ai-engineer-assessment-raditya-pratama.
 ### Create and activate a virtual environment
 python -m venv .venv
 
-Windows powershell:
+### Windows powershell:
 .venv\Scripts\Activate.ps1
+
+### macOS / Linux Terminal
+
+Create a virtual environment, install dependencies, and create your local
+configuration file:
+
+```bash
+python3 -m venv .venv
+./.venv/bin/python -m pip install -r requirements.txt
+cp .env.example .env
+```
 
 ### Install dependencies
 pip install -r requirements.txt
@@ -104,4 +115,17 @@ Every response includes the source or sources used to produce the answer.
 ```
 
 ### Tests
-python -m pytest -v
+
+Run the automated tests from the project directory.
+
+**Windows PowerShell:**
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -v
+```
+
+**macOS / Linux:**
+
+```bash
+./.venv/bin/python -m pytest -v
+```
