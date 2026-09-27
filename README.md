@@ -1,9 +1,9 @@
 # AI Engineer Assessment
 
 This is a FastAPI chatbot that answers questions using:
--Local text dataset about space exploration
--Superhero API
--Both sources when prompted
+- Local text dataset about space exploration
+- Superhero API
+- Both sources when prompted
 
 The project features Google Gemini to classify questions and generate answers from the retrieved information
 
