@@ -22,11 +22,11 @@ class AskRequest(BaseModel):
     )
 
 
-@app.get("/")
-def home():
-    return {
-        "message": "AI Engineer Assessment"
-    }
+# @app.get("/")
+# def home():
+#     return {
+#         "message": "AI Engineer Assessment"
+#     }
 
 
 def extract_superhero_name(question: str):
