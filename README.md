@@ -32,6 +32,8 @@ cp .env.example .env
 ### Install dependencies
 pip install -r requirements.txt
 
+- (Requires Python with `pip` and `venv`, Git, a Gemini API key, and a SuperHero API token.)
+
 ### Create environment file
 Copy-Item .env.example .env
 
@@ -65,14 +67,6 @@ For example a request:
 
 ```
 A mixed source request:
-
-{
-  "question": "Compare Iron Man with the technology used during Apollo 11."
-}
-
-```
-
-```
 
 {
   "question": "When did Apollo 11 land on the Moon, and what is Tony Stark'\''s intelligence score?"
@@ -129,3 +123,5 @@ Run the automated tests from the project directory.
 ```bash
 ./.venv/bin/python -m pytest -v
 ```
+
+Tested with Python 3.14.7 on Windows
