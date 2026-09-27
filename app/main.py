@@ -1,10 +1,10 @@
 import json
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from google import genai
 
-from app.config import GEMINI_API_KEY
+from app.config import GEMINI_API_KEY, GEMINI_MODEL
 from app.retriever import search_space_dataset
 from app.router import classify_question
 from app.superhero import search_superhero
@@ -15,14 +15,12 @@ app = FastAPI()
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 
-from pydantic import BaseModel, Field
-
-
 class AskRequest(BaseModel):
     question: str = Field(
         min_length=2,
         max_length=500
     )
+
 
 @app.get("/")
 def home():
@@ -42,17 +40,28 @@ Return only the character name.
 Do not explain anything.
 """
 
-    response = client.interactions.create(
-        model="gemini-3.8-flash",
-        input=prompt
-    )
+    try:
+        response = client.interactions.create(
+            model=GEMINI_MODEL,
+            input=prompt
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            "Gemini superhero extraction request failed."
+        ) from exc
 
     return response.output_text.strip()
 
 
 @app.post("/ask")
 def ask(request: AskRequest):
-    route = classify_question(request.question)
+    try:
+        route = classify_question(request.question)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=str(exc)
+        )
 
     contexts = []
     sources = []
@@ -70,15 +79,32 @@ def ask(request: AskRequest):
         })
 
     if route == "superhero" or route == "both":
-        hero_name = extract_superhero_name(request.question)
+        try:
+            hero_name = extract_superhero_name(request.question)
+        except RuntimeError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=str(exc)
+            )
 
-        heroes = search_superhero(hero_name)
+        try:
+            heroes = search_superhero(hero_name)
+        except RuntimeError as exc:
+            raise HTTPException(
+                status_code=502,
+                detail=str(exc)
+            )
 
-        hero_data = json.dumps(heroes)
+        if heroes:
+            hero_data = json.dumps(heroes)
 
-        contexts.append(
-            f"SuperHero API data:\n{hero_data}"
-        )
+            contexts.append(
+                f"SuperHero API data:\n{hero_data}"
+            )
+        else:
+            contexts.append(
+                f"SuperHero API returned no results for: {hero_name}"
+            )
 
         sources.append({
             "type": "superhero_api",
@@ -100,10 +126,16 @@ If the information is ambiguous or incomplete, say so.
 Keep the answer concise.
 """
 
-    response = client.interactions.create(
-        model="gemini-3.8-flash",
-        input=prompt
-    )
+    try:
+        response = client.interactions.create(
+            model=GEMINI_MODEL,
+            input=prompt
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Gemini answer generation failed."
+        ) from exc
 
     return {
         "answer": response.output_text,
