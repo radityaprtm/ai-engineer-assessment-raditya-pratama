@@ -1,13 +1,14 @@
 import json
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
+# from pydantic import BaseModel, Field
 from google import genai
 
 from app.config import GEMINI_API_KEY, GEMINI_MODEL
 from app.retriever import search_space_dataset
 from app.router import classify_question
 from app.superhero import search_superhero
+from app.models import AskRequest, AskResponse
 
 
 app = FastAPI()
@@ -15,11 +16,11 @@ app = FastAPI()
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 
-class AskRequest(BaseModel):
-    question: str = Field(
-        min_length=2,
-        max_length=500
-    )
+# class AskRequest(BaseModel):
+#     question: str = Field(
+#         min_length=2,
+#         max_length=500
+#     )
 
 
 # @app.get("/")
@@ -53,7 +54,7 @@ Do not explain anything.
     return response.output_text.strip()
 
 
-@app.post("/ask")
+@app.post("/ask", response_model=AskResponse)
 def ask(request: AskRequest):
     try:
         route = classify_question(request.question)
