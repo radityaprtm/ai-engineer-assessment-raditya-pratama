@@ -46,6 +46,13 @@ For example a request:
 ```
 
 ```
+For example a request:
+{
+    question: "What is Apollo 11?"
+}
+```
+
+```
 A mixed source request:
 
 {
@@ -53,7 +60,48 @@ A mixed source request:
 }
 
 ```
+
+```
+
+{
+  "question": "When did Apollo 11 land on the Moon, and what is Tony Stark'\''s intelligence score?"
+}
+
+```
+
+
 Every response includes the source or sources used to produce the answer.
+
+### Example of Responses:
+
+```
+{
+  "answer": "Apollo 11 was the first crewed mission to land humans on the Moon, launched by NASA on July 16, 1969. During the mission, Neil Armstrong and Buzz Aldrin landed the lunar module Eagle on the Moon on July 20, 1969, while Michael Collins remained in lunar orbit. Armstrong became the first person to walk on the Moon.",
+  "sources": [
+    {
+      "type": "dataset",
+      "name": "data/space.txt"
+    }
+  ]
+}
+```
+
+
+```
+{
+  "answer": "Apollo 11 landed on the Moon on July 20, 1969. Tony Stark's intelligence score is 100.",
+  "sources": [
+    {
+      "type": "dataset",
+      "name": "data/space.txt"
+    },
+    {
+      "type": "superhero_api",
+      "name": "SuperHero API"
+    }
+  ]
+}
+```
 
 ### Tests
 python -m pytest -v
