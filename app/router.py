@@ -1,6 +1,6 @@
 from google import genai
 
-from app.config import GEMINI_API_KEY
+from app.config import GEMINI_API_KEY, GEMINI_MODEL
 
 
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -30,9 +30,21 @@ superhero
 both
 """
 
-    response = client.interactions.create(
-        model="gemini-3.8-flash",
-        input=prompt
-    )
+    try:
+        response = client.interactions.create(
+            model=GEMINI_MODEL,
+            input=prompt
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            "Gemini routing request failed."
+        ) from exc
 
-    return response.output_text.strip().lower()
+    route = response.output_text.strip().lower()
+
+    if route not in {"dataset", "superhero", "both"}:
+        raise RuntimeError(
+            f"Gemini returned an invalid route: {route}"
+        )
+
+    return route
