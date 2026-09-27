@@ -11,12 +11,25 @@ def search_superhero(name: str):
 
     url = f"https://superheroapi.com/api/{token}/search/{name}"
 
-    response = httpx.get(
-        url,
-        timeout=10.0,
-        follow_redirects=True
-    )
+    try:
+        response = httpx.get(
+            url,
+            timeout=10.0,
+            follow_redirects=True
+        )
 
-    data = response.json()
+        response.raise_for_status()
+
+    except httpx.HTTPError as exc:
+        raise RuntimeError(
+            "SuperHero API request failed."
+        ) from exc
+
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise RuntimeError(
+            "SuperHero API returned invalid JSON."
+        ) from exc
 
     return data.get("results", [])
