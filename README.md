@@ -25,8 +25,9 @@ pip install -r requirements.txt
 Copy-Item .env.example .env
 
 ### Add API keys to .env
-GEMINI_API_KEY=your_gemini_api_key
-SUPERHERO_API_TOKEN=your_superhero_api_token
+- GEMINI_API_KEY=your_gemini_api_key
+- SUPERHERO_API_TOKEN=your_superhero_api_token
+- GEMINI_MODEL=gemini-3.1-flash-lite
 
 ### Run:
 uvicorn app.main:app --reload
