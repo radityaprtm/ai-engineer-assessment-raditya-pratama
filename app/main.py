@@ -32,13 +32,26 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 def extract_superhero_name(question: str):
     prompt = f"""
-Extract the superhero or villain name from this question.
+Extract one superhero or villain search name from the user's question.
+
+Use the character's commonly known superhero or villain name.
+If the user provides a civilian identity and its superhero identity is
+unambiguous, return the superhero name instead.
+
+Examples:
+Question: How clever is Tony Stark?
+Search name: Iron Man
+
+Question: How clever is Iron Man?
+Search name: Iron Man
+
+If you cannot confidently identify the character, preserve the supplied
+name rather than inventing a different character.
+
+Return only the search name, without quotation marks or explanations.
 
 Question:
 {question}
-
-Return only the character name.
-Do not explain anything.
 """
 
     try:
