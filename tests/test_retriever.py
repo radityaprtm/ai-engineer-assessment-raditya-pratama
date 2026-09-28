@@ -19,3 +19,10 @@ def test_voyager_question_returns_voyager_section():
     assert result is not None
     assert "Voyager 1" in result
     assert "interstellar space" in result
+
+def test_unrelated_question_returns_none():
+    result = search_space_dataset(
+        "What is the capital city of France?"
+    )
+
+    assert result is None
