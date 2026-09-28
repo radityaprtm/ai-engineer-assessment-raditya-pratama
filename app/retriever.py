@@ -18,7 +18,7 @@ def get_words(text: str):
     }
 
 
-def search_space_dataset(question: str):
+def search_space_dataset(question: str) -> str | None:
     with open("data/space.txt", "r", encoding="utf-8") as file:
         text = file.read()
 
@@ -38,5 +38,8 @@ def search_space_dataset(question: str):
         if score > best_score:
             best_score = score
             best_section = section
+
+    if best_score == 0:
+        return None
 
     return best_section
