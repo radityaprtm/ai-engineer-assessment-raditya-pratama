@@ -177,3 +177,61 @@ def test_superhero_question_returns_answer_and_source():
             "name": "SuperHero API"
         }
     ]
+
+def test_router_failure_returns_502():
+    with patch(
+        "app.main.classify_question",
+        side_effect=RuntimeError("Gemini routing request failed.")
+    ):
+        response = client.post(
+            "/ask",
+            json={"question": "Who is Batman?"}
+        )
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "Gemini routing request failed."
+
+
+def test_superhero_extraction_failure_returns_502():
+    with patch(
+        "app.main.classify_question",
+        return_value="superhero"
+    ), patch(
+        "app.main.extract_superhero_name",
+        side_effect=RuntimeError(
+            "Gemini superhero extraction request failed."
+        )
+    ):
+        response = client.post(
+            "/ask",
+            json={"question": "Who is Batman?"}
+        )
+
+    assert response.status_code == 502
+    assert (
+        response.json()["detail"]
+        == "Gemini superhero extraction request failed."
+    )
+
+
+def test_answer_generation_failure_returns_502():
+    with patch(
+        "app.main.classify_question",
+        return_value="dataset"
+    ), patch(
+        "app.main.search_space_dataset",
+        return_value="Apollo 11 landed on the Moon in 1969."
+    ), patch(
+        "app.main.client.interactions.create",
+        side_effect=Exception("Gemini unavailable")
+    ):
+        response = client.post(
+            "/ask",
+            json={"question": "When did Apollo 11 land?"}
+        )
+
+    assert response.status_code == 502
+    assert (
+        response.json()["detail"]
+        == "Gemini answer generation failed."
+    )
