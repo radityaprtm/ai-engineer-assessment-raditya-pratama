@@ -81,16 +81,21 @@ def ask(request: AskRequest):
     sources = []
 
     if route == "dataset" or route == "both":
-        space_context = search_space_dataset(request.question)
+    space_context = search_space_dataset(request.question)
 
+    if space_context:
         contexts.append(
             f"Space dataset:\n{space_context}"
         )
+    else:
+        contexts.append(
+            "Space dataset:\nNo relevant information was found."
+        )
 
-        sources.append({
-            "type": "dataset",
-            "name": "data/space.txt"
-        })
+    sources.append({
+        "type": "dataset",
+        "name": "data/space.txt"
+    })
 
     if route == "superhero" or route == "both":
         try:
