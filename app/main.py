@@ -1,21 +1,18 @@
 import json
 
 from fastapi import FastAPI, HTTPException
-# from pydantic import BaseModel, Field
 from google import genai
 
 from app.config import GEMINI_API_KEY, GEMINI_MODEL
+from app.models import AskRequest, AskResponse
 from app.retriever import search_space_dataset
 from app.router import classify_question
 from app.superhero import search_superhero
-from app.models import AskRequest, AskResponse
 
 
 app = FastAPI()
 
 client = genai.Client(api_key=GEMINI_API_KEY)
-
-
 # class AskRequest(BaseModel):
 #     question: str = Field(
 #         min_length=2,
@@ -29,8 +26,15 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 #         "message": "AI Engineer Assessment"
 #     }
 
-
 def extract_superhero_name(question: str):
+    """
+    Extract a superhero/villain search name from a natural-language question.
+
+    Example:
+    "How clever is Tony Stark?"
+    => "Iron Man"
+    """
+
     prompt = f"""
 Extract one superhero or villain search name from the user's question.
 
@@ -69,6 +73,7 @@ Question:
 
 @app.post("/ask", response_model=AskResponse)
 def ask(request: AskRequest):
+    # Step 1
     try:
         route = classify_question(request.question)
     except RuntimeError as exc:
@@ -80,26 +85,30 @@ def ask(request: AskRequest):
     contexts = []
     sources = []
 
+    # Step 2
     if route == "dataset" or route == "both":
-    space_context = search_space_dataset(request.question)
+        space_context = search_space_dataset(request.question)
 
-    if space_context:
-        contexts.append(
-            f"Space dataset:\n{space_context}"
-        )
-    else:
-        contexts.append(
-            "Space dataset:\nNo relevant information was found."
-        )
+        if space_context:
+            contexts.append(
+                f"Space dataset:\n{space_context}"
+            )
+        else:
+            contexts.append(
+                "Space dataset:\nNo relevant information was found."
+            )
 
-    sources.append({
-        "type": "dataset",
-        "name": "data/space.txt"
-    })
+        sources.append({
+            "type": "dataset",
+            "name": "data/space.txt"
+        })
 
+    # Step 3
     if route == "superhero" or route == "both":
         try:
-            hero_name = extract_superhero_name(request.question)
+            hero_name = extract_superhero_name(
+                request.question
+            )
         except RuntimeError as exc:
             raise HTTPException(
                 status_code=502,
@@ -130,6 +139,7 @@ def ask(request: AskRequest):
             "name": "SuperHero API"
         })
 
+    # Step 4
     context_text = "\n\n".join(contexts)
 
     prompt = f"""
@@ -145,6 +155,7 @@ If the information is ambiguous or incomplete, say so.
 Keep the answer concise.
 """
 
+    # Step 5
     try:
         response = client.interactions.create(
             model=GEMINI_MODEL,
