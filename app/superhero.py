@@ -32,4 +32,24 @@ def search_superhero(name: str):
             "SuperHero API returned invalid JSON."
         ) from exc
 
-    return data.get("results", [])
+    if data.get("response") == "error":
+        error_message = data.get(
+            "error",
+            "Unknown SuperHero API error."
+        )
+
+        if error_message == "character with given name not found":
+            return []
+
+        raise RuntimeError(
+            f"SuperHero API error: {error_message}"
+        )
+
+    results = data.get("results")
+
+    if not isinstance(results, list):
+        raise RuntimeError(
+            "SuperHero API returned an unexpected response format."
+        )
+
+    return results
