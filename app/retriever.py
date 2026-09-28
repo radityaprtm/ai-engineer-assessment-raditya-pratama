@@ -1,4 +1,12 @@
 import re
+from pathlib import Path
+
+
+DATA_FILE = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "space.txt"
+)
 
 
 STOP_WORDS = {
@@ -19,7 +27,7 @@ def get_words(text: str):
 
 
 def search_space_dataset(question: str) -> str | None:
-    with open("data/space.txt", "r", encoding="utf-8") as file:
+    with open(DATA_FILE, "r", encoding="utf-8") as file:
         text = file.read()
 
     sections = text.split("\n\n")
